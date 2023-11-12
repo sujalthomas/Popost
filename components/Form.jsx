@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link";
-import Places from "@app/api/maps/places";
 import { useState } from "react";
 
 const Form = ({ type, post, setPost, submitting, handleSubmit }) => {
@@ -69,13 +68,16 @@ const Form = ({ type, post, setPost, submitting, handleSubmit }) => {
         <label className="block relative">
   <span className='font-satoshi font-semibold text-base text-gray-700'>Location</span>
   <div className="relative">
-    <Places
-      value={location}
-      onChange={setLocation}
+    <input
+      value={post.time}
       onSelect={(selectedAddress) => {
         setLocation(selectedAddress);
         setPost({ ...post, location: selectedAddress });
       }}
+      type='text'
+      placeholder='Location'
+      required
+      className='form_input'
     />
   </div>
 </label>
