@@ -1,6 +1,6 @@
 {
-  "name": "promptopia",
-  "version": "0.1.0",
+  "name": "popost",
+  "version": "0.9.7",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +9,6 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "@react-google-maps/api": "^2.19.2",
     "autoprefixer": "10.4.14",
     "axios": "^1.6.0",
     "bcrypt": "^5.1.0",
@@ -25,6 +24,5 @@
     "react-share": "^4.4.1",
     "react-toastify": "^9.1.3",
     "tailwindcss": "3.3.2",
-    "use-places-autocomplete": "^4.0.1"
   }
 }
