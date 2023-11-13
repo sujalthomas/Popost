@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from 'react';
 import { useSession } from "next-auth/react";
 import { toast } from "react-toastify";
 
@@ -15,6 +15,8 @@ const CreatePost = () => {
   const [postId, setPostId] = useState(null);
   const { data: session } = useSession();
 
+  // Assume you have some state
+  const [state, setState] = useState('initial state');
 
   const addUrlField = () => setUrls([...urls, '']);
   const removeUrlField = (index) => setUrls(urls.filter((_, idx) => idx !== index));
@@ -23,6 +25,14 @@ const CreatePost = () => {
     newUrls[index] = value;
     setUrls(newUrls);
   };
+
+  const [apiKey, setApiKey] = useState('');
+
+  useEffect(() => {
+    const key = localStorage.getItem('openAIKey');
+    setApiKey(key);
+  }, []);
+
 
   // Quiz submission handler
   const handleQuizSubmit = async (event) => {
@@ -35,6 +45,7 @@ const CreatePost = () => {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`, // Sending the key as a header
         },
         body: JSON.stringify(articleDetails),
       });
@@ -46,6 +57,13 @@ const CreatePost = () => {
       setLoading(false);
     }
   };
+
+  // Function to reset the state
+  const resetState = () => {
+    setState('initial state');
+  };
+
+
 
   // Function to extract hashtags from content
   const extractHashtags = (content) => {
@@ -101,94 +119,90 @@ const CreatePost = () => {
   };
 
 
-  // Function to reload the page
-  const reloadPage = () => {
-    window.location.reload();
-  };
+
 
   return (
     <>
-    
-    <toast/>
-    <div className="info flex flex-col items-center pt-15">
-      <h1 className="text-white mb-5">Generate Post</h1>
 
-      {!quizPost && ( // Only show this form if quizPost is not set
-        <form onSubmit={handleQuizSubmit} className="form-container flex flex-col items-center w-full">
-          <div className="input-container mb-3 w-full">
-            <input
-              type="text"
-              id="articleTopic"
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="Enter the topic"
-              required
-              className="bg-transparent text-gray-300 border border-gray-300 mt-2 p-2 rounded w-full placeholder-gray-500"
-            />
-          </div>
-          {urls.map((url, index) => (
-            <div key={index} className="flex items-center mb-2">
-              {index === 0 && (
-                <button type="button" onClick={addUrlField} className="add-button bg-gray-800 text-white p-2 rounded cursor-pointer hover:bg-gray-700 mr-auto">+</button>
-              )}
+      <toast />
+      <div className="info flex flex-col items-center pt-15">
+        <h1 className="text-white mb-5">Generate Post</h1>
+
+        {!quizPost && ( // Only show this form if quizPost is not set
+          <form onSubmit={handleQuizSubmit} className="form-container flex flex-col items-center w-full">
+            <div className="input-container mb-3 w-full">
               <input
                 type="text"
-                placeholder={`URL ${index + 1}`}
-                value={url}
-                onChange={(e) => updateUrlField(index, e.target.value)}
-                className="flex-grow bg-transparent text-gray-300 border border-gray-300 mr-2 p-2 rounded"
+                id="articleTopic"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="Enter the topic"
+                required
+                className="bg-transparent text-gray-300 border border-gray-300 mt-2 p-2 rounded w-full placeholder-gray-500"
               />
-              {index !== 0 && (
-                <button type="button" onClick={() => removeUrlField(index)} className="remove-button bg-red-500 text-white p-2 rounded cursor-pointer hover:bg-red-600 ml-auto">-</button>
-              )}
             </div>
-          ))}
-          <div className="flex items-center gap-10 mb-2">
-            <button type="submit" disabled={loading} className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed mt-3">
-              {loading ? 'Generating...' : 'Generate'}
-            </button>
-          </div>
-        </form>
-      )}
+            {urls.map((url, index) => (
+              <div key={index} className="flex items-center mb-2">
+                {index === 0 && (
+                  <button type="button" onClick={addUrlField} className="add-button bg-gray-800 text-white p-2 rounded cursor-pointer hover:bg-gray-700 mr-auto">+</button>
+                )}
+                <input
+                  type="text"
+                  placeholder={`URL ${index + 1}`}
+                  value={url}
+                  onChange={(e) => updateUrlField(index, e.target.value)}
+                  className="flex-grow bg-transparent text-gray-300 border border-gray-300 mr-2 p-2 rounded"
+                />
+                {index !== 0 && (
+                  <button type="button" onClick={() => removeUrlField(index)} className="remove-button bg-red-500 text-white p-2 rounded cursor-pointer hover:bg-red-600 ml-auto">-</button>
+                )}
+              </div>
+            ))}
+            <div className="flex items-center gap-10 mb-2">
+              <button type="submit" disabled={loading} className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed mt-3">
+                {loading ? 'Generating...' : 'Generate'}
+              </button>
+            </div>
+          </form>
+        )}
 
-      {quizPost && (
-        <>
-          <div className="post-card text-gray-300 mt-5 p-5 rounded border border-gray-300 bg-transparent w-5/6">
+        {quizPost && (
+          <>
+            <div className="post-card text-gray-300 mt-5 p-5 rounded border border-gray-300 bg-transparent w-5/6">
 
-            <p className="whitespace-pre-wrap">{quizPost}</p>
+              <p className="whitespace-pre-wrap">{quizPost}</p>
 
-            {/* Copy to Clipboard Button */}
-            <button onClick={copyContentToClipboard} className="copy-button bg-gray-500 text-white p-2 rounded cursor-pointer hover:bg-gray-600 mt-3">
-              Copy
-            </button>
-          </div>
+              {/* Copy to Clipboard Button */}
+              <button onClick={copyContentToClipboard} className="copy-button bg-gray-500 text-white p-2 rounded cursor-pointer hover:bg-gray-600 mt-3">
+                Copy
+              </button>
+            </div>
 
 
-          <div className="flex gap-10">
-            {/* Publish Button */}
-            <button
-              type="button"
-              onClick={() => {
-                handlePublish();
-                reloadPage();
-              }}              disabled={loading || postId}
-              className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed mt-3"
-            >
-              {loading ? 'Publishing...' : 'Publish'}
-            </button>
+            <div className="flex gap-10">
+              {/* Publish Button */}
+              <button
+                type="button"
+                onClick={() => {
+                  handlePublish();
+                }} disabled={loading || postId}
+                className="bg-blue-500 text-white p-2 rounded cursor-pointer hover:bg-blue-600 disabled:bg-gray-300 disabled:cursor-not-allowed mt-3"
+              >
+                {loading ? 'Publishing...' : 'Publish'}
+              </button>
 
-            {/* Regenerate Button */}
-            <button
-              type="button"
-              onClick={reloadPage}
-              className="regenerate-button bg-orange-500 text-white p-2 rounded cursor-pointer hover:bg-orange-600 mt-3 ml-2"
-            >
-              Regenerate
-            </button>
-          </div>
-        </>
-      )}
-    </div>
+              {/* Regenerate Button */}
+              <button
+                type="button"
+                onClick={resetState} // Call the reset function when the button is clicked
+                className="regenerate-button bg-orange-500 text-white p-2 rounded cursor-pointer hover:bg-orange-600 mt-3 ml-2"
+              >
+                Regenerate
+              </button>
+            </div>
+          </>
+        )}
+      </div>
     </>
   );
 };

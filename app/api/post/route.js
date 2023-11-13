@@ -4,7 +4,7 @@ import { ChatOpenAI } from "langchain/chat_models/openai";
 import { ChatPromptTemplate, MessagesPlaceholder } from "langchain/prompts";
 import { AIMessage, AgentStep, BaseMessage, FunctionMessage } from "langchain/schema";
 import { RunnableSequence } from "langchain/schema/runnable";
-import { SerpAPI, formatToOpenAIFunction } from "langchain/tools";
+import { SerpAPI, formatToOpenAIFunction } from "langchain/tools"; //////////
 import { Calculator } from "langchain/tools/calculator";
 import { OpenAIFunctionsAgentOutputParser } from "langchain/agents/openai/output_parser";
 import { BufferMemory } from "langchain/memory";
@@ -27,7 +27,10 @@ const memory = new BufferMemory({
 
 const toolsOriginal = [new Calculator(), new SerpAPI()];
 
-const modelOriginal = new ChatOpenAI({ modelName: "gpt-3.5-turbo", temperature: 0 });
+const modelOriginal = new ChatOpenAI({ 
+  modelName: "gpt-3.5-turbo", 
+  temperature: 0,
+});
 
 const promptOriginal = ChatPromptTemplate.fromMessages([
   ["ai", "You are a helpful assistant"],
@@ -85,18 +88,24 @@ const toolsNew = [
 let executorNew;
 
 // Initialize the new executor with web browsing and searching functionality
-async function initializeExecutorNew() {
-    if (!executorNew) {
-      executorNew = await initializeAgentExecutorWithOptions(toolsNew, modelNew, {
-        agentType: "zero-shot-react-description",
-        verbose: true,
-      });
-    }
+// Modify the initializeExecutorNew function to accept apiKey
+async function initializeExecutorNew(apiKey) {
+  if (!executorNew) {
+    // Pass the apiKey to the OpenAI model
+    const modelNew = new OpenAI({ temperature: 0 });
+
+    executorNew = await initializeAgentExecutorWithOptions(toolsNew, modelNew, {
+      agentType: "zero-shot-react-description",
+      verbose: true,
+    });
   }
+}
+
   
   // Function to perform research and generate a social media post
-  async function performResearchAndGeneratePost(topic, resources) {
-    await initializeExecutorNew(); // Ensure the executor is ready
+// Modify the performResearchAndGeneratePost function to accept apiKey
+async function performResearchAndGeneratePost(topic, resources) {
+  await initializeExecutorNew(); // Pass the apiKey here
   
     // Logging that the agents are loaded
     console.log("Loaded agents.");
@@ -119,7 +128,7 @@ async function initializeExecutorNew() {
     console.log(`Google search results for ${topic}: ${searchResult.output}`);
   
     // Create a social media post prompt including the topic and gathered information
-    const socialMediaPostPrompt = `Create a captivating social media post that is semi-professional and engaging for the following topic: "${topic}". The post should be concise, appeal to a broad audience, and encourage interaction. Include a catchy opening, valuable insights, and a call-to-action. Include relevant links: ${resources.join(", ")}.`;
+    const socialMediaPostPrompt = `Create a captivating social media post that is semi-professional and engaging for the following topic: "${topic}". The post should be concise, appeal to a broad audience, and encourage interaction. Include a catchy opening, valuable insights. Include relevant links: ${resources.join(", ")}.`;
   
     // Generate the social media post
     console.log(`Generating social media post for the topic: ${topic}`);
@@ -151,13 +160,17 @@ async function initializeExecutorNew() {
   // API endpoint handler for POST request
   export const POST = async (request) => {
     try {
+      const apiKey = request.headers.get('Authorization')?.split(' ')[1]; // Extract the key
+      if (!apiKey) {
+        throw new Error("Missing API key in the request headers.");
+      }
       const { topic, resources } = await request.json();
   
       if (!topic || !resources) {
         throw new Error("Missing topic or resources in the request payload.");
       }
   
-      const { post, summaries } = await performResearchAndGeneratePost(topic, resources);
+      const { post, summaries } = await performResearchAndGeneratePost(topic, resources, apiKey);
   
       // Output the result to the terminal and console logs
       //console.log("Final social media post:", post);
@@ -166,7 +179,7 @@ async function initializeExecutorNew() {
       return new Response(JSON.stringify({ post, summaries }), {
         status: 200,
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       });
     } catch (error) {
