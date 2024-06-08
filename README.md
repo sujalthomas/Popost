@@ -1,7 +1,8 @@
-```markdown
+
 # Popost - Media Flow
 
 Popost is an innovative platform designed to enhance content creation and distribution through the integration of advanced technologies. By leveraging React, Next.js, and MongoDB, Popost offers a seamless user experience for generating visually appealing social media content. The project incorporates AI-driven features using OpenAI's GPT-4 and LangChain, ensuring top-notch content generation and analysis.
+
 
 ## Key Features
 
@@ -20,6 +21,7 @@ Popost is an innovative platform designed to enhance content creation and distri
 - **Supports-color**: Allows handling of terminal color support.
 - **React-share**: Enables easy sharing of content across various social media platforms.
 
+
 ## Project Highlights
 
 - **AI Integration**: Enhanced content generation with OpenAI's GPT-4 and LangChain for producing high-quality, instructive content.
@@ -31,11 +33,12 @@ Popost is an innovative platform designed to enhance content creation and distri
 ## Installation
 
 To get started with Popost, clone the repository and install the necessary dependencies:
+```
 
-```bash
 git clone https://github.com/yourusername/popost.git
 cd popost
 npm install
+```
 
 ## Usage
 
@@ -44,23 +47,20 @@ Run the development server:
 ```bash
 npm run dev
 
+```
 
 Build the application for production:
 
 ```bash
 npm run build
 
+```
 Start the production server:
 
 ```bash
 npm start
 
+```
 ## License
 
 This project is licensed under the MIT License.
-
-## Acknowledgements
-
-Special thanks to the contributors and the open-source community for their invaluable resources and support.
-
-```
